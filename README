@@ -1,0 +1,71 @@
+
+ boot430 0.90
+
+ chris chung (simpleavr) Feburary 2013
+
+CREDITS:
+
+based on works from;
+. Matthias Koch, Mecrimus-B, provides orginal assembler usb implementation
+. Kevin Timmerman, oPossum, provides TI ccs v4 translation on usb implementation
+. Chris Chung, simpleavr, www.simpleavr.com, provides mspgcc translation
+  and bootloader application logic
+. Christian Starkjohann, OBJECTIVE DEVELOPMENT Software GmbH, www.obdev.at
+  reference hid bootloader project, commandline code framework used in this project
+
+  please see License.txt for licensing
+
+DESCRIPTION:
+
+. boot430 is usb bootloader for certain (8k and 16k) msp430g2xxx value line devices.
+. based on bbusb (for bit-bang usb), a v-usb like low-speed usb implementaion on msp430
+. requires a minimal component circuit and is very breadboard friendly.
+. can be used for other usb implementations, by replacing bbusb_prototcol.c and main()
+. there are many alternate h/w hookups, research "v-usb 3.3v"
+. compile w/ mspgcc, works on linux and windows w/ cygwin
+. requires libusb
+
+SCHEMATIC:
+                  MSP430G2xxx                   Vcc (3.3v)
+         Vcc   -----------------                 /|\
+         /|\  |                 |                 |       ___
+          |   |                 |                 |      /   \ LP2950AC3.3
+          |   |                 | Vcc             +-----o__o__o------
+         .-.  |                 | /|\             |    Out |  In    |
+    4.7k | |  |                 |  |              |        |        |
+         | |  |                 |  |              --| |----+---| |--+
+         .-.  |                 | .-.               10uF   |  0.1uF |
+          |   |                 | | | 1.5k                 |        ----------o Vusb (5v)
+          ----|RST              | | |                      | 
+          ----|P2.6             | .-.                      -------------------o Gnd
+          |   |                 |  |
+    led  \ /  |             P1.1|--+-[ 68ohm ]--------------------------------o D-
+         ---  |                 |
+          |   |             P1.0|----[ 68ohm ]--------------------------------o D+
+          ----|P2.7             |
+
+    * led is optional
+	* LP2950 can be replaced by similar 3.3v LDO regulator
+
+FEATURES:
+
+. occupies 2.4k flash space
+. requires no external crystal, timer sychronize via usb sync frame
+. v-usb like circuitry, BOM (68ohm x 2, 1.5k, 4.7k, LP2950AC3.3, 10uF, 0.1uF, led)
+. supports 8k and 16k msp430g2xxx value line devices
+. bootloader checks for D- pull-up and usb host presence upon bootup
+
+NOTES:
+. change MCU= in Makefiles for target device (g2553, g2342 tested)
+. commandline contains host side bootloader code
+. apps directory contains sample applications to test firmware bootloading
+
+(2012.12.xx)
+  . it started from a thread post in 43oh.com, look for "bit-bang usb"
+  . Macrimus-B posted code on a bit-bang usb implementation for msp430
+  . oPossum translate assembler code to TI CCS, w/ simplier C entry points
+  . myself translate code into mspgcc, implements this bootloader on top
+
+(2013.02.05)
+  . initial checkin
+
