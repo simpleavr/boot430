@@ -19,7 +19,7 @@
 //
 	#include	<msp430.h>
 	#include	"bbusb.h"
-										
+
 
 extern const uint8_t *ReadyForTransmit;
 extern unsigned NewAddress;
@@ -110,7 +110,7 @@ static const uint8_t HID_Descriptor[] = {	// i am me
     0xb2, 0x02, 0x01,              //   FEATURE (Data,Var,Abs,Buf)
 
     0x85, 0x02,                    //   REPORT_ID (2)
-    0x95, 0x83,                    //   REPORT_COUNT (131)
+    0x95, 0x04,                    //   REPORT_COUNT (4)
     0x09, 0x00,                    //   USAGE (Undefined)
     0xb2, 0x02, 0x01,              //   FEATURE (Data,Var,Abs,Buf)
     0xc0                           // END_COLLECTION
@@ -134,7 +134,7 @@ static const uint8_t String_Descriptor_2[] = {
 };
 
 #define BOOT430_VER		0
-#define BOOT430_REL		90
+#define BOOT430_REL		91
 
 static uint8_t ClassReport[] = {
 		7,
@@ -159,7 +159,7 @@ const uint8_t* ProtocolSetupPacket(uint8_t *pkt)
 				ClassReport[7] = *((uint8_t *) 0x0ff0);
 				return ClassReport;
 			case 0x09:					// Set Report
-			case 0x0A:					// Set Idle 
+			case 0x0A:					// Set Idle
 				return StatusEmpty;		//
 		}								//
 	} else {							//
@@ -174,7 +174,7 @@ const uint8_t* ProtocolSetupPacket(uint8_t *pkt)
 					case 0x01:			//	Device Descriptor.
 						return Device_Descriptor;
 					case 0x02:			// Configuration Descriptor.
-						if(pkt[8] == 9) { // 0B C3 80 06 00 02 00 00 --> 09 <-- 00 AE 04 
+						if(pkt[8] == 9) { // 0B C3 80 06 00 02 00 00 --> 09 <-- 00 AE 04
 										// Short Configuration Descriptor, only the first nine bytes
 							return Configuration_Descriptor_first9;
 						} else {		// Complete Configuration Descriptor
@@ -208,7 +208,7 @@ volatile uint8_t keyCnt=4;
 
 void IrqIn(uint8_t *d) {
 	*d++ = 3;
-	*d++ = (Data_PID_ToggleIrqIn ^= (USB_PID_DATA0 ^ USB_PID_DATA1));  
+	*d++ = (Data_PID_ToggleIrqIn ^= (USB_PID_DATA0 ^ USB_PID_DATA1));
 
 	*d++ = 0;
 	*d = 0;

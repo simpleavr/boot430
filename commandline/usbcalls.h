@@ -78,4 +78,13 @@ int usbGetReport(usbDevice_t *device, int reportType, int reportID, char *buffer
 
 /* ------------------------------------------------------------------------ */
 
+#if defined(WIN32)
+#include <windows.h>
+void uSleep(__int64 usec);
+#else
+#define uSleep usleep
+#endif
+
+/* ------------------------------------------------------------------------ */
+
 #endif /* __usbcalls_h_INCLUDED__ */

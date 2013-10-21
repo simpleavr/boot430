@@ -17,7 +17,7 @@
 ;
 ;	 You should	have received a	copy of	the	GNU	General	Public License
 ;	 along with	this program.  If not, see <http://www.gnu.org/licenses/>.
-;  
+;
 ; Ported to CCS v4 by Kevin Timmerman 2012.12
 ; Ported to mspgcc by Chris Chung 2012.12
 ; . added check upon interrupt entry to decide if bootloader or application get interrupt
@@ -39,7 +39,7 @@
 	;.word	USB_Transmit_CRC			;
 										;
 										;
-	.if CRC_STYLE						;										
+	.if CRC_STYLE						;
 usb_packet_ack:							;
 	.byte	1, USB_PID_ACK				;
 usb_packet_nak:							;
@@ -58,7 +58,7 @@ usb_packet_stall:						;
 	.endm								;
 										;
 .macro nrzi_r11							;
-	mov.b	@r9, r11					; [1]  NRZI							
+	mov.b	@r9, r11					; [1]  NRZI
 										; [2]  <---	Sampling
 	xor		r11, r10					; [3]
 	and		#usbminus, r10				; [4]
@@ -71,7 +71,7 @@ usb_packet_stall:						;
 1:	jnz		1f							; [9]	Data bits inverted here	!
 										; [10]
 	mov.b	@r9, \register				; [e 1]
-										; [e 2]	 <--- Read state again for proper NRZI decoding 
+										; [e 2]	 <--- Read state again for proper NRZI decoding
 	bis		#0x80, r12					; [e 3]	Set MSB in data
 										; [e 4]
 	xor		#\bitmask, r13				; [e 5]	Set changed place in bitstuff mask
@@ -89,10 +89,10 @@ usb_packet_stall:						;
 1:	jnz		1f							; [9]	Data bits inverted here	!
 										; [10]
 	mov.b	@r9, \register				; [e 1]
-										; [e 2]	 <--- Read state again for proper NRZI decoding 
+										; [e 2]	 <--- Read state again for proper NRZI decoding
 	and		#usbplus+usbminus, \register; [e 3] SE0 check
 										; [e 4]
-	jz		usb_se0						; [e 5] 
+	jz		usb_se0						; [e 5]
 										; [e 6]
 	bis		#0x80, r12					; [e 7]	Set MSB in data
 										; [e 8]
@@ -122,8 +122,8 @@ usb_packet_stall:						;
 	.endm								;
 										;
 										; Signal for Sync pattern
-										; Signal: 
-										; D-:	normally high, Sync: 01	01 01 00 
+										; Signal:
+										; D-:	normally high, Sync: 01	01 01 00
 										; D+:			 low		 10	10 10 11
 										; Idea:	Search 1-->0 transtition, sample it	precisely and look if double zero follows, else	repeat.
 										; As initialisation	after IRQ (after bit.b for zero) needs some	time, we will normally not see the first zero here.
@@ -137,9 +137,9 @@ usb_packet_stall:						;
 										;
 										; bit.b - affects flags, but does not change the register contents.
 										; As and.b -> If D is high, is the right jnz jump.
-										;  
+										;
 ; -----------------------				; Wait until the low state is here:
-- bit.b @r9, r10						;        
+- bit.b @r9, r10						;
 ; <-- Sampling							; (  9L 10L 11L 12L )
 jnz -									; ( 10L 11L 12L  1H )
 ;										; ( 11L 12L  1H  2H )
@@ -156,7 +156,7 @@ jz -									; (  2H  3H  4H  5H )
 										; This is required to not trigger syncing on Keep-Alive-SE0s.
 										;
 										; Idea: Each bit is 10 bars long in the line
-										; Sync to the pattern 01010100 on D- 
+										; Sync to the pattern 01010100 on D-
 										; ---------------------------------------------------------------------------
 										;
 Usb_Sync_Error_9_10_11_12:				;
@@ -172,9 +172,13 @@ Usb_Sync_Error_9_10:					; Error happened
 										; ---------------------------------------------------------------------------
 .global	__isr_2
 __isr_2:
+#ifndef USE_32768HZ_XTAL
 	cmp.b	#15, &BCSCTL1				; Real Entry point of interrupt
 	jz		USB_Sync					; if I am running at 15Mhz, I am bootloader
 	br		&0xffa4						; no, jump to application interrupt handler
+#else
+  #error @simpleavr @M-atthias For the moment, detecting whether we are in bootloader or not with a crystal is not implemented.
+#endif
 USB_Sync:								; Entry point of interrupt
 	push	r9							;
 	push	r10							;
@@ -200,7 +204,7 @@ USB_Quick_Resync:						;
 	jnz		Usb_Sync_Error_9_10			;
 	;									;
 j00:; -----------------------			;  Low detected
-	bit.b	@r9, r10					; 
+	bit.b	@r9, r10					;
 	; <-- Sampling						;  1
 	jnz		j01							;  2
 	;									;  3
@@ -221,8 +225,8 @@ j01:;   ------------>					; (  3H  4H  5H  6H )	Leave the preliminary sync with 
 	push	r11							; (  4H  5H  6H  7H )
 	;									; (  5H  6H  7H  8H )
 	;									; (  6H  7H  8H  9H )
-	mov.b	@r9, r10					; (  7H  8H  9H 10H )    
-	; <-- Sampling						; (  8H  9H 10H  1L ) 
+	mov.b	@r9, r10					; (  7H  8H  9H 10H )
+	; <-- Sampling						; (  8H  9H 10H  1L )
 	mov.b	@r9, r11					; (  9H 10H  1L  2L )
 	; <-- Sampling						; ( 10H  1L  2L  3L )
 	; -----------------					; (   |   |   |   | )
@@ -238,7 +242,7 @@ j03:; -----------------					; (                 )  Edge sampling finished
 	push	r12							; (  9L  8L  9L  9L )
 	;									; (      9L 10L     )
 	;									; (     10L  1N     )
-	nop									; (      1N  2N     )  
+	nop									; (      1N  2N     )
 	mov.b	@r9, r10					; (      2N  3N     )  Check, if this is really low for two bit times
 	; <-- Sampling						; (      3N  4N     )
 	bit		#usbminus, r10				; (      4N  5N     )
@@ -247,9 +251,9 @@ j03:; -----------------					; (                 )  Edge sampling finished
 										;
 	; -----------------------			; Second try to sync precisely
 	nop2								; (  5H  6H  7H  8H )  Another syncinc run with entry on 7/8 leads to sync with one cycle accuracy.
-	;									; (  6H  7H  8H  9H ) 
-	mov.b	@r9, r10					; (  7H  8H  9H 10H )    
-	; <-- Sampling						; (  8H  9H 10H  1L ) 
+	;									; (  6H  7H  8H  9H )
+	mov.b	@r9, r10					; (  7H  8H  9H 10H )
+	; <-- Sampling						; (  8H  9H 10H  1L )
 	mov.b	@r9, r11					; (  9H 10H  1L  2L )
 	; <-- Sampling						; ( 10H  1L  2L  3L )
 	; -----------------					; (   |   |   |   | )
@@ -275,8 +279,8 @@ j05:; -----------------					; (                 )  Edge sampling finished
 	; -----------------------			; Third and last try to sync precisely
 	nop2								; (  5H  6H  7H  8H )  Another syncinc run with entry on 7/8 leads to sync with one cycle accuracy.
 	;									; (  6H  7H  8H  9H )
-	mov.b	@r9, r10					; (  7H  8H  9H 10H )    
-	; <-- Sampling						; (  8H  9H 10H  1L ) 
+	mov.b	@r9, r10					; (  7H  8H  9H 10H )
+	; <-- Sampling						; (  8H  9H 10H  1L )
 	mov.b	@r9, r11					; (  9H 10H  1L  2L )
 	; <-- Sampling						; ( 10H  1L  2L  3L )
 	; -----------------					; (   |   |   |   | )
@@ -332,7 +336,7 @@ Usb_Rec_Einlauf:						;
 										; r15  ; Pointer to	write into receive buffer
 										;
 										; Note:	Data is	inverted because of	clever use of flags	and	side-effects to	save cycles
-										;		Stuffing mask holds	those bits that	have been inverted,	so that	stuffing detection 
+										;		Stuffing mask holds	those bits that	have been inverted,	so that	stuffing detection
 										;		will not detect	stuffing on	the	same bits more than	one	time.
 										;
 										; We have some time	in the first byte of data, as stuffing cannot occour the first 5 bits.
@@ -345,13 +349,13 @@ Usb_Rec_Einlauf:						;
 	mov.b	@r9, r10					; [1]  NRZI				( 3	 4)	 Chance	counting here so that mov.b	@r9	always counts on one.
 										; [2]  <---	Sampling	( 4	 5)	 Center-Sampling on	5 or 6 !
 	mov		#0x7F, r12					; [3]  not(9f0)			( 5	 6)	 Initialize	data, as last bit of Syncpattern may take part in stuffing.
-										; [4]							 
+										; [4]
 	and		#usbminus, r10				; [5] instead bit Wechsele initiate here the method of payment! One arrogated deliver directly the value of the first bit. Depends on sync byte final. There is D-low. Exchange - set> Carry. Get there :-)
 	rrc.b	r12							; [6]  and rotate the MOV instruction comes as ever on record [1] :-) First Data bit! Usbminus contains the first data bit inverted. fits :-)
 										;	   Catch first data	bit, use only AND here,	as last	state out of sync pattern is always	the	same.
 	push	r13							; [7]  Save more registers
-										; [8] 
-										; [9] 
+										; [8]
+										; [9]
 	clr		r13							; [10] Clear	stuffing mask
 										;
 										; ---------------------------------------------------------------------------
@@ -360,7 +364,7 @@ Usb_Rec_Einlauf:						;
 										;
 	nrzi_r11							; [1-5]
 	push	r14							; [6]  The data	backup register	doesn't	need initialisation.
-										; [7]  
+										; [7]
 										; [8]
 										; [9]  Fetch the Pointer in	two	steps, could be	in one step	@ 18 MHz/12	cycles.
 	mov		#ReceiveBufferPointer, r14	;
@@ -371,10 +375,10 @@ Usb_Rec_Einlauf:						;
 										; ---------------------------------------------------------------------------
 	nrzi_r10							; [1-5]
 	push	r15							; [6]  Pointer to write	reveived data, has to be initialized.
-										; [7]  
-										; [8] 
+										; [7]
+										; [8]
 	mov		@r14, r15					; [9]  Second step of fetching buffer pointer
-										; [10] 
+										; [10]
 										;
 										; ---------------------------------------------------------------------------
 										; Fourth Bit:	(3)	 Run-in	with preparations
@@ -408,12 +412,12 @@ USB_ReceiverLoop:						;
 										; ---------------------------------------------------------------------------
 	mov.b	@r9, r11					; [1]  NRZI	einleiten mit Sampling
 										; [2]	<--- Sampling
-										; [s3]  Check for SE0 
+										; [s3]  Check for SE0
 	and		#usbplus+usbminus, r11		;
 										; [s4]
 	jz		usb_se0						; [s5]  Which occours as low low in both USB lines
 										; [s6]	Unfortunately this	takes whole	4 cycles...
-	xor		r11, r10					; [7] 
+	xor		r11, r10					; [7]
 	and		#usbminus, r10				; [8]   NRZI go through
 	rrc.b	r12							; [9]
 	bit		r8,	r12						; [10]	Stopferkennung, 6 bits in succession, no change!
@@ -468,12 +472,12 @@ Mittendrin_im_fuenften_Bit:				;
 										;
 										; ---------------------------------------------------------------------------
 										; Eigth Bit: (7)   Special task: Save data for later preparation and apply stuffmask.
-										;					Jump back with stuffing-jump to save cycles !	 
+										;					Jump back with stuffing-jump to save cycles !
 										; ---------------------------------------------------------------------------
 	nrzi_r11							; [1-5]
 	mov		r12, r14					; [6] Data byte is ready! Fetch it.  Backup of Data
 	bic		r13, r14					; [7] Apply	stuffmask
-	bit		r8,	r12						; [8]  Stopferkennung, 6 bits in succession, no change!						  
+	bit		r8,	r12						; [8]  Stopferkennung, 6 bits in succession, no change!
 	jnz		USB_ReceiverLoop			; [9]  Return with stuff-detect-jump
 										; [10]
 										; Unstuffing for last bit.
@@ -481,14 +485,14 @@ Mittendrin_im_fuenften_Bit:				;
 										; [e 2]	 <--- Sampling	State simply read again
 	and		#usbminus, r11				; [e 3]
 	bis		#0x80, r12					; [e 4]	 The primary bit in data, data register is 16 bits wide and runs through!
-										; [e 5]	 Set MSB in	data, this is rotated further later.  
+										; [e 5]	 Set MSB in	data, this is rotated further later.
 	nop									; [e 6]	   Do not log in Stopfmaske,
 	nop2								; [e 7]	   since this bit is pushed completely
 										; [e 8]	   and Stopfmaske is anyway deleted.
 	jmp		USB_ReceiverLoop			; [e 9]
 										; [e 10]  In the last bit there	is no need to update stuffmask,	as data	byte is	already	saved,
 										;		  but it is	necessary to set the bit in	data register, as stuffing continues over byte boundaries.
-										;		  It will be shifted out later anyway... 
+										;		  It will be shifted out later anyway...
 										;
 										; ---------------------------------------------------------------------------
 										; SE0:	End	of packet detected.
@@ -518,14 +522,14 @@ usb_se0:								; Come with [7] Here!
 										;
 	toggle_syncled						; Finished.	Toggle syncled again, to see on	oscilloscope if	SE0	detection missed its job due to	wrong sync.
 										;
-										;------------------------------------------------------------------------------		 
+										;------------------------------------------------------------------------------
 	mov.b	1(r14),	r10					; Fetch PID of packet for further investigation.
 	mov.b	2(r14),	r11					; Fetch field that may contain address
 	mov.b	3(r14),	r12					; Fetch field that may contain endpoint
 	bit		#0x080, r11					; Fetch	LSB	bit	of endpoint
 	rlc		r12							; Rotate that bit in
 	and		#0x00F, r12					; Remove CRC5 from endpoint
-	bic		#0x080, r11					; Clear	Endpoint bit in	address	 
+	bic		#0x080, r11					; Clear	Endpoint bit in	address
 										;
 	cmp		#USB_PID_IN, r10			;
 	jeq		usb_in						;
@@ -556,13 +560,13 @@ usb_pop_and_finish:						;
 										; Is there already the next	packet in the line ?
 	bit.b	#usbplus, &usbifg			; (Or vice versa, in order to save strokes?)
 	jc		USB_Quick_Resync			; Catch	it immediately ! This entry	point is only possible if r9 is	not	changed.
-										; 
+										;
 	pop		r10							;
 	pop		r9							;
 										; Next packet now in line ?
 	bit.b	#usbplus, &usbifg			; Or vice versa, in order to save strokes?)
-	jc		USB_Sync					; If yes, catch it. Else handle it with another interrupt. 
-	reti								; 
+	jc		USB_Sync					; If yes, catch it. Else handle it with another interrupt.
+	reti								;
 										;
 										; Next paket may follow	in 2 bittimes =	20 cycles.
 										; If I have	to reply, I	have 6.5 to	7.5	bittimes maximum until I have to transmit my answer.
@@ -585,7 +589,7 @@ j10: mov	&ReadyForTransmit, r15		; Fetch pointer for outgoing packets
 										;
 j11: cmp	#0,	r15						; Something inside	?
 	jne		j12							;
-	.if CRC_STYLE						;		
+	.if CRC_STYLE						;
 	mov		#usb_packet_nak, r15		; If not, send NAK
 	br		#USB_Transmit				;
 	.else								;
@@ -596,20 +600,20 @@ j11: cmp	#0,	r15						; Something inside	?
 j12:									;
 										; Address changes are committed	after Status Stage.	Do this	here !
 	tst		0(R15)						; Stall?
-	jz		usb_stall					;										
+	jz		usb_stall					;
 	mov		&NewAddress, &CurrentAddress ;
 	br		#USB_Transmit				;
 										;
 										;
 usb_stall:								;
-	.if CRC_STYLE						;		
+	.if CRC_STYLE						;
 	mov		#usb_packet_stall, r15		; Send STALL
 	br		#USB_Transmit				;
 	.else								;
 	mov		#(USB_PID_STALL << 8) ^ 0xFF7F, R14
 	jmp		ack_nak						;
 	.endif								;
-										
+
 usb_out_setup:							;
 	cmp.b	r11, &CurrentAddress		; For me ?
 	jne		usb_pop_and_finish			;
@@ -624,7 +628,7 @@ usb_data:								;
 	.if CRC_STYLE						;
 	mov		#usb_packet_ack, r15		;
 	br		#USB_Transmit				;
-	.else								;	
+	.else								;
 	mov		#(USB_PID_ACK << 8) ^ 0xFF7F, R14
 ack_nak:								;
 	clr		R15							;
@@ -639,7 +643,9 @@ ack_nak:								;
 .global	__isr_6
 .global	__isr_7
 .global	__isr_8
+#ifndef USE_32768HZ_XTAL
 .global	__isr_9
+#endif
 .global	__isr_10
 .global	__isr_11
 .global	__isr_12
@@ -653,7 +659,9 @@ __isr_5:
 __isr_6:
 __isr_7:
 __isr_8:
+#ifndef USE_32768HZ_XTAL
 __isr_9:
+#endif
 __isr_10:
 __isr_11:
 __isr_12:

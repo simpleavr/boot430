@@ -44,8 +44,8 @@ SCHEMATIC:
           |   |             P1.0|----[ 68ohm ]--------------------------------o D+
           ----|P2.7             |
 
-    * led is optional
-	* LP2950 can be replaced by similar 3.3v LDO regulator
+    * led is optional, if used, better attach a series resistor of a few hundred ohms for reliability
+	* LP2950 can be replaced by similar 3.3v LDO regulator (try 3.6v LDO to improve reliability)
 
 FEATURES:
 
@@ -59,6 +59,19 @@ NOTES:
 . change MCU= in Makefiles for target device (g2553, g2342 tested)
 . commandline contains host side bootloader code
 . apps directory contains sample applications to test firmware bootloading
+
+(2013.10.xx)
+  2013.11 changes this v0.91 mainly contributed by "theprophet" (username at 43Oh.com)
+
+  . theprophet tried v0.90 and had numerous issues
+  . had provided various fixes to enable reliability on various platforms
+  . implement correct report_id according to usb standards
+  . implement a much more reliable timing scheme for data flashing and transfer
+  . bootloader is a bit slower but much more reliable
+  * if you use a led "heartbeat" blinker between P2.6 and P2.7, be sure to use a resistor
+  * if you have a choice, use a 3.6V LDO for better reliability
+  * if you need help, find the appropriate thread in 43oh.com forum, most authors frequent that
+
 
 (2012.12.xx)
   . it started from a thread post in 43oh.com, look for "bit-bang usb"
