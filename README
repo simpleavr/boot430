@@ -1,13 +1,15 @@
 
- boot430 0.90
+ boot430 0.91
 
- chris chung (simpleavr) Feburary 2013
+ October 2013 v0.91
+ chris chung (simpleavr) Feburary 2013 v0.90
 
 CREDITS:
 
 based on works from;
 . Matthias Koch, Mecrimus-B, provides orginal assembler usb implementation
 . Kevin Timmerman, oPossum, provides TI ccs v4 translation on usb implementation
+. David Grimvbichler, theprophet, enhance transfer timing and correct detail message formats
 . Chris Chung, simpleavr, www.simpleavr.com, provides mspgcc translation
   and bootloader application logic
 . Christian Starkjohann, OBJECTIVE DEVELOPMENT Software GmbH, www.obdev.at
@@ -61,9 +63,9 @@ NOTES:
 . apps directory contains sample applications to test firmware bootloading
 
 (2013.10.xx)
-  2013.11 changes this v0.91 mainly contributed by "theprophet" (username at 43Oh.com)
+  2013.10 changes this v0.91 mainly contributed by David Grimbichler aka "theprophet"
 
-  . theprophet tried v0.90 and had numerous issues
+  . David tried v0.90 and had numerous issues
   . had provided various fixes to enable reliability on various platforms
   . implement correct report_id according to usb standards
   . implement a much more reliable timing scheme for data flashing and transfer
@@ -71,6 +73,8 @@ NOTES:
   * if you use a led "heartbeat" blinker between P2.6 and P2.7, be sure to use a resistor
   * if you have a choice, use a 3.6V LDO for better reliability
   * if you need help, find the appropriate thread in 43oh.com forum, most authors frequent that
+  * now include binary excutable, Windows apps loader "commandline/boot430load.exe"
+  * and bootloader hex firmware "boot430.hex"
 
 
 (2012.12.xx)
