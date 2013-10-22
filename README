@@ -9,7 +9,7 @@ CREDITS:
 based on works from;
 . Matthias Koch, Mecrimus-B, provides orginal assembler usb implementation
 . Kevin Timmerman, oPossum, provides TI ccs v4 translation on usb implementation
-. David Grimvbichler, theprophet, enhance transfer timing and correct detail message formats
+. David Grimbichler, theprophet, enhance transfer timing and correct detail message formats
 . Chris Chung, simpleavr, www.simpleavr.com, provides mspgcc translation
   and bootloader application logic
 . Christian Starkjohann, OBJECTIVE DEVELOPMENT Software GmbH, www.obdev.at
