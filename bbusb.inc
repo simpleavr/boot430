@@ -32,8 +32,12 @@
 
 #define nop2 		jmp		$ + 2
 
-#define	toggle_syncled	xor.b	#BIT2, &P1OUT	// Toggles Sync	LED, good for triggering an	oscilloscope and visual	feedback
+//#define	toggle_syncled	xor.b	#BIT2, &P1OUT	// Toggles Sync	LED, good for triggering an	oscilloscope and visual	feedback
 												// Preserve clock cycles if you want to remove this !
+.macro toggle_syncled							;
+	nop2
+	nop2
+	.endm
 												
 #define	CRC_STYLE 1			// 0: On-the-fly CRC calculation - fastest, but largest code
 							// 1: Bitwise loop CRC calculation - smallest and slowest

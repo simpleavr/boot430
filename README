@@ -1,7 +1,8 @@
 
  boot430 0.91
 
- October 2013 v0.91
+ October 2013 v0.91a, add "hid mouse" example build along w/ bootloader function
+ October 2013 v0.91, stability improvements
  chris chung (simpleavr) Feburary 2013 v0.90
 
 CREDITS:
@@ -26,6 +27,7 @@ DESCRIPTION:
 . there are many alternate h/w hookups, research "v-usb 3.3v"
 . compile w/ mspgcc, works on linux and windows w/ cygwin
 . requires libusb
+* (new v0.91a) add new Makefile.hid to build a simple hid mouse instead of a complex bootloader
 
 SCHEMATIC:
                   MSP430G2xxx                   Vcc (3.3v)
@@ -61,6 +63,13 @@ NOTES:
 . change MCU= in Makefiles for target device (g2553, g2342 tested)
 . commandline contains host side bootloader code
 . apps directory contains sample applications to test firmware bootloading
+
+(2013.10.xx)
+  . there is no change in bootloader except toogle_syncled() disabled
+  . add files and build mechanism for a simple hid mouse application (no bootloader)
+  . use Makefile.hid instead of Makefile, sample "hid430.hex" firmware included
+  . to build and flash, (1) make -f Makefile.hid, (2) make -f Makefile.hid flash
+  . please view and change Makefiles to reflect your device (MMCU)
 
 (2013.10.xx)
   2013.10 changes this v0.91 mainly contributed by David Grimbichler aka "theprophet"
