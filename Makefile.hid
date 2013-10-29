@@ -1,14 +1,13 @@
 
-# For 32KHz XTAL, compile with:
-# USE_32768HZ_XTAL="" make -f Makefile.hid
-
-
-#MMCU=msp430g2553
-MMCU=msp430g2452
+MMCU=msp430g2553
+#MMCU=msp430g2452
 PRG=hid430
 
+# Uncomment next line if you're using a 32768 Hz XTAL
+#USER_DEFINES=-DUSE_32768HZ_XTAL
+
 CC=msp430-gcc
-CFLAGS=-Os -Wall -mmcu=$(MMCU) -ffunction-sections -fdata-sections -fno-inline-small-functions -Wl,-Map=bbusb.map,--cref -Wl,--relax
+CFLAGS=-Os -Wall -mmcu=$(MMCU) -ffunction-sections -fdata-sections -fno-inline-small-functions -Wl,-Map=bbusb.map,--cref -Wl,--relax $(USER_DEFINES)
 
 AFLAGS=-Wa,--gstabs -Wall -mmcu=$(MMCU) -x assembler-with-cpp
 

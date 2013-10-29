@@ -1,4 +1,6 @@
 //
+//   HID Mouse example
+//
 //    Copyright © 2012  Kevin Timmerman
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -15,9 +17,38 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-//#define USE_32768HZ_XTAL
+/*
 
-#define HID430
+  Schematics
+  Note: decoupling CAP and LDO are not shown
+  
+
+//                VCC (3.3V)
+//                  |
+//           +------+     MSP430G2452/
+//           _      _     MSP430G2553
+//          |1|    |4|   ---------------
+//          |K|    |K|  |            XIN|--+
+//          |5|    |7|  |               | [ ] 32.768KHz XTAL (optional)
+//           -      -   |           XOUT|--+
+//           |      |   |               |  __o__
+//           |      +---|RST        P2.0|--o   o---o  LEFT           \
+//           |          |               |  __o__   |                 |
+//           +----------|P1.0       P2.1|--o   o---o  UP             |
+//           |          |               |  __o__   |                 |
+//           |      +---|P1.1       P2.2|--o   o---o  LEFT CLICK      > Mouse controls
+//           _      _   |               |  __o__   |                 |
+//          |6|    |6|  |           P2.3|--o   o---o  RIGHT          |
+//          |8|    |8|  |               |  __o__   |                 |
+//          |R|    |R|  |           P2.4|--o   o---o  DOWN           /
+//           -      -                             _|_
+//           |      |                             ///
+//  USB      D+     D-
+//
+//
+
+*/
+
 
     #include    <msp430.h>
     #include    "bbusb.h"
