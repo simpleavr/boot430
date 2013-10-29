@@ -7,9 +7,7 @@
 MMCU=msp430g2452
 PRG=hid430
 
-CC=/home/ale/energia-0101E0010/hardware/tools/msp430/bin/msp430-gcc
-#CFLAGS=-Os -Wall -mmcu=$(MMCU) -ffunction-sections -fdata-sections -fno-inline-small-functions --cref -Wl,--relax -Wl,-Ttext=0xf000
-#CFLAGS=-Os -Wall -mmcu=$(MMCU) -ffunction-sections -fdata-sections -fno-inline-small-functions --cref -Wl,--relax
+CC=msp430-gcc
 CFLAGS=-Os -Wall -mmcu=$(MMCU) -ffunction-sections -fdata-sections -fno-inline-small-functions -Wl,-Map=bbusb.map,--cref -Wl,--relax
 
 AFLAGS=-Wa,--gstabs -Wall -mmcu=$(MMCU) -x assembler-with-cpp
