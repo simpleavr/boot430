@@ -177,8 +177,9 @@ __isr_2:
 	jz		USB_Sync					; if I am running at 15Mhz, I am bootloader
 	br		&0xffa4						; no, jump to application interrupt handler
 #else
-  #error @simpleavr @M-atthias For the moment, detecting whether we are in bootloader or not with a crystal is not implemented.
+  ;#error @simpleavr @M-atthias For the moment, detecting whether we are in bootloader or not with a crystal is not implemented.
 #endif
+
 USB_Sync:								; Entry point of interrupt
 	push	r9							;
 	push	r10							;

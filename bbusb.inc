@@ -1,4 +1,6 @@
 
+#define USE_32768HZ_XTAL
+
 #define USB_PID_OUT		0xE1
 #define USB_PID_IN		0x69
 //USB_PID_SOF			0xA5
