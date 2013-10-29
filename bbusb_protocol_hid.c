@@ -136,10 +136,16 @@ static const uint8_t String_Descriptor_1[] = {
 	16, 16, 3, 'o', 0, 'P', 0, 'o', 0, 's', 0, 's', 0, 'u', 0, 'm',	0
 };
 
+#ifdef USE_32768HZ_XTAL
+static const uint8_t String_Descriptor_2[] = {
+    30, 30, 3, 'M', 0, 'o', 0, 'u', 0, 's', 0, 'e', 0, ' ', 0, '4', 0, '3', 0, '0', 0
+    ,  ' ', 0, 'X', 0, 'T', 0, 'A', 0, 'L', 0
+};
+#else
 static const uint8_t String_Descriptor_2[] = {
 	20, 20, 3, 'M', 0, 'o', 0, 'u', 0, 's', 0, 'e', 0, ' ', 0, '4',	0, '3', 0, '0', 0
 };
-
+#endif
 
 const uint8_t* ProtocolSetupPacket(uint8_t *pkt)
 {										//

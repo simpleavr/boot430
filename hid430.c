@@ -1,4 +1,6 @@
 //
+//   HID Mouse example
+//
 //    Copyright © 2012  Kevin Timmerman
 //
 //    This program is free software: you can redistribute it and/or modify
@@ -14,9 +16,44 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
+
+/*
+
+  Schematics
+  Note: decoupling CAP and LDO are not shown
+  
+
+//                VCC (3.3V)
+//                  |
+//           +------+     MSP430G2452/
+//           _      _     MSP430G2553
+//          |1|    |4|   ---------------
+//          |K|    |K|  |            XIN|--+
+//          |5|    |7|  |               | [ ] 32.768KHz XTAL (optional)
+//           -      -   |           XOUT|--+
+//           |      |   |               |  __o__
+//           |      +---|RST        P2.0|--o   o---o  LEFT           \
+//           |          |               |  __o__   |                 |
+//           +----------|P1.0       P2.1|--o   o---o  UP             |
+//           |          |               |  __o__   |                 |
+//           |      +---|P1.1       P2.2|--o   o---o  LEFT CLICK      > Mouse controls
+//           _      _   |               |  __o__   |                 |
+//          |6|    |6|  |           P2.3|--o   o---o  RIGHT          |
+//          |8|    |8|  |               |  __o__   |                 |
+//          |R|    |R|  |           P2.4|--o   o---o  DOWN           /
+//           -      -                             _|_
+//           |      |                             ///
+//  USB      D+     D-
+//
+//
+
+*/
+
+
     #include    <msp430.h>
     #include    "bbusb.h"
 
+    
 
 static unsigned FrequencyCounter;
 static uint8_t IrqInSendPacketBuffer[12];
@@ -41,6 +78,54 @@ extern const uint8_t *ReadyForTransmit;
 
 
 
+uint8_t mouse_btn_clicked = 0;
+uint8_t centerClicked(){
+    if((P2IN & BIT2) == 0){
+        if(!mouse_btn_clicked){
+            mouse_btn_clicked = 1;
+            return 1;
+        }
+    } else {
+        if(mouse_btn_clicked){
+            mouse_btn_clicked = 0;
+            return  0;
+        }
+    }
+    return 0;
+}
+
+uint8_t horizClicked(){
+    if((P2IN & BIT0) == 0){
+        return -1;
+    }
+    if((P2IN & BIT3) == 0){
+        return 1;
+    }
+    return 0;
+}
+
+
+uint8_t vertClicked(){
+    if((P2IN & BIT1) == 0){
+        return -1;
+    }
+    if((P2IN & BIT4) == 0){
+        return 1;
+    }
+    return 0;
+}
+
+void MouseIrqIn(uint8_t *d)                  //
+{                                       // -- Mouse HID response
+    *d++ = 5;                           // Length
+                                        // Data PID toggle
+    *d++ = (Data_PID_ToggleIrqIn ^= (USB_PID_DATA0 ^ USB_PID_DATA1));
+    *d++ = centerClicked();                // Buttons
+    *d++ = horizClicked();               // X
+    *d++ = vertClicked();                           // Y
+    *d++ = 0;                           // Wheel
+}
+
 
 void main(void)
 {
@@ -49,6 +134,15 @@ void main(void)
     P1OUT = 0;                          // Prepare Port 1
     usbdir = ~(usbplus | usbminus);     // USB lines are inputs
     //P1SEL |= BIT4;                      // SMCLK for measurements on P1.4
+
+    // ABP: mouse
+    // Input Pull-up
+    P2OUT = 0;
+    P2SEL &= ~(BIT0 | BIT1 | BIT2 | BIT3 | BIT4);
+    P2DIR &= ~(BIT0 | BIT1 | BIT2 | BIT3 | BIT4);
+    P2REN |= BIT0 | BIT1 | BIT2 | BIT3 | BIT4;
+    P2OUT |= BIT0 | BIT1 | BIT2 | BIT3 | BIT4;
+    
                                         //
     FrequencyCounter = 0;               //
                                         //
@@ -83,7 +177,7 @@ void main(void)
 #endif
                                         //
     for(;;) {                           // for-ever
-        unsigned n = 40;                // Reset if both D+ and D- stay low for a while
+        unsigned n = 80;                // Reset if both D+ and D- stay low for a while
                                         // 10 ms in SE0 is reset
                                         // Should this be done in the ISR somehow???
         while(!(usbin & (usbplus | usbminus))) {
@@ -97,7 +191,7 @@ void main(void)
                 while ((usbin&usbminus));
 
 
-                n = 250;
+                n = 1000;
                 while (--n) {
                     while (!(usbin&usbminus));
                     TACTL |= TACLR;
@@ -142,7 +236,7 @@ void main(void)
         }                               //
                                         //
         if(!ReadyForTransmitIrqIn) {    // Check if the USB SIE is ready for an endpoint 1 packet
-            IrqIn(IrqInSendPacketBuffer); // Build the packet
+            MouseIrqIn(IrqInSendPacketBuffer); // Build the packet
             CRC(IrqInSendPacketBuffer); // Append CRC
                                         // Send it
             ReadyForTransmitIrqIn = IrqInSendPacketBuffer;
