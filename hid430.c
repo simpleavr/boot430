@@ -21,7 +21,7 @@
 
   Schematics
   Note: decoupling CAP and LDO are not shown
-  
+
 
 //                VCC (3.3V)
 //                  |
@@ -34,16 +34,16 @@
 //           |      |   |               |  __o__
 //           |      +---|RST        P2.0|--o   o---o  LEFT           \
 //           |          |               |  __o__   |                 |
-//           +----------|P1.0       P2.1|--o   o---o  UP             |
+//           +----------|P1.1       P2.1|--o   o---o  UP             |
 //           |          |               |  __o__   |                 |
-//           |      +---|P1.1       P2.2|--o   o---o  LEFT CLICK      > Mouse controls
+//           |      +---|P1.0       P2.2|--o   o---o  LEFT CLICK      > Mouse controls
 //           _      _   |               |  __o__   |                 |
 //          |6|    |6|  |           P2.3|--o   o---o  RIGHT          |
 //          |8|    |8|  |               |  __o__   |                 |
 //          |R|    |R|  |           P2.4|--o   o---o  DOWN           /
 //           -      -                             _|_
 //           |      |                             ///
-//  USB      D+     D-
+//  USB      D-     D+
 //
 //
 
@@ -53,7 +53,7 @@
     #include    <msp430.h>
     #include    "bbusb.h"
 
-    
+
 
 static unsigned FrequencyCounter;
 static uint8_t IrqInSendPacketBuffer[12];
@@ -115,14 +115,14 @@ uint8_t vertClicked(){
     return 0;
 }
 
-void MouseIrqIn(uint8_t *d)                  //
+void MouseIrqIn(uint8_t *d)             //
 {                                       // -- Mouse HID response
     *d++ = 5;                           // Length
                                         // Data PID toggle
     *d++ = (Data_PID_ToggleIrqIn ^= (USB_PID_DATA0 ^ USB_PID_DATA1));
-    *d++ = centerClicked();                // Buttons
-    *d++ = horizClicked();               // X
-    *d++ = vertClicked();                           // Y
+    *d++ = centerClicked();             // Buttons
+    *d++ = horizClicked();              // X
+    *d++ = vertClicked();               // Y
     *d++ = 0;                           // Wheel
 }
 
@@ -142,7 +142,7 @@ void main(void)
     P2DIR &= ~(BIT0 | BIT1 | BIT2 | BIT3 | BIT4);
     P2REN |= BIT0 | BIT1 | BIT2 | BIT3 | BIT4;
     P2OUT |= BIT0 | BIT1 | BIT2 | BIT3 | BIT4;
-    
+
                                         //
     FrequencyCounter = 0;               //
                                         //
